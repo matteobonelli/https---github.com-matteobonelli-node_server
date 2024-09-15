@@ -5,8 +5,7 @@ const { IsNotPippettoException, SavingException } = require('./Exceptions/Except
 const { connectToMongo, getDatabaseInstance } = require('./db')
 
 const { query, body, validationResult } = require('express-validator');
-const { authorization, saveJwt, delay } = require('./utilModule');
-
+const { authorization, saveJwt, delay, saveLog, arrayToDate, info, errorLog } = require('./utilModule');
 
 const database = getDatabaseInstance();
 
@@ -27,11 +26,14 @@ registroApp.get('/users'
 registroApp.get('/log'
 , async (req, res) =>{
     try {
+        info("Get Log Called")
         await delay(5000)
         const requestData = req.query;
         console.log(requestData)
+        info("Get Log successfull")
         return res.status(200).json({receivedData : requestData, pippo : "Pippetto"});
     } catch (error) {
+        errorLog(error.message)
         res.status(500).send(error);
     }
     
@@ -45,10 +47,8 @@ registroApp.post('/propagateJWT'
         res.status(200).send("OK")
     } catch (error) {
         if(error instanceof IsNotPippettoException){
-            console.log("MATTISSIMO")
             res.status(error.httpCode).json({ message: error.message });
         } else if(error instanceof SavingException){
-            console.log("Francesco")
             res.status(error.httpCode).json({ message: error.message });
         }
     }
@@ -58,15 +58,18 @@ registroApp.post('/propagateJWT'
 registroApp.post('/saveLog'
 , async (req, res) =>{
     try {
-        saveJwt(req, database)
+        info("Save Log to Db called")
+        saveLog(req, database)
         res.status(200).send("OK")
+        info("Save Log to DB Succesfull")
     } catch (error) {
         if(error instanceof IsNotPippettoException){
-            console.log("MATTISSIMO")
             res.status(error.httpCode).json({ message: error.message });
+            errorLog(error.message)
         } else if(error instanceof SavingException){
-            console.log("Francesco")
+            console.log(error.message)
             res.status(error.httpCode).json({ message: error.message });
+            errorLog(error.message)
         }
     }
     

@@ -10,7 +10,7 @@ async function connectToMongo(){
         await client.connect()
         console.log('Pippetto is connected to Mongo...');
     } catch (error) {
-        console.error("Pippetto is having troubles connecting...", err)
+        console.error("Pippetto is having troubles connecting...", error)
     }
 }
 

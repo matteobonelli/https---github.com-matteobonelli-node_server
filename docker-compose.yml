@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  mongo:
+      image: mongo
+      environment:
+          - MONGO_INITDB_ROOT_USERNAME=user
+          - MONGO_INITDB_ROOT_PASSWORD=password
+          - MONGO_INITDB_DATABASE=project
+  mongo-express:
+      image: mongo-express
+      environment:
+          - ME_CONFIG_MONGODB_SERVER=mongo
+          - ME_CONFIG_MONGODB_PORT=27017
+          - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+          - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+          - ME_CONFIG_MONGODB_AUTH_USERNAME=user
+          - ME_CONFIG_MONGODB_AUTH_PASSWORD=password
+          - ME_CONFIG_BASICAUTH_USERNAME=dev
+          - ME_CONFIG_BASICAUTH_PASSWORD=dev
+      depends_on:
+          - mongo
+      ports:
+        - "8888:8081"
+
+  nodeapp:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Path to your Node.js app's Dockerfile
+    container_name: node_app_container
+    ports:
+      - "3000:3000"  # Map Node.js app port
+    depends_on:
+      - mongo
+    links:
+      - mongo
+
+volumes:
+  mongodb_data:
+    driver: local
